@@ -86,6 +86,8 @@ a:focus-visible, button:focus-visible, input:focus-visible {{ outline: 3px solid
 .dir-count {{ color: #A5B3AB !important; font-size: 13px; }}
 .dir-nav a {{ display: block; color: #CBD6D0 !important; text-decoration: none; font-size: 14.5px; padding: 6px 0; }}
 .dir-nav a:hover {{ color: #FFFFFF !important; text-decoration: underline; text-underline-offset: 3px; }}
+.dir-nav {{ padding-bottom: 16px; margin-bottom: 18px; border-bottom: 1px solid #33413A; }}
+@media (max-width: 767px) {{ .dir-nav {{ display: none; }} }}
 
 /* Letra de segmento, como en la señalética */
 .zona {{ display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 5px;
@@ -223,8 +225,9 @@ def zona(letra, color, big=False):
     return f'<span class="zona{" big" if big else ""}" style="background:{color}">{letra}</span>'
 
 
-def seccion(ancla, titulo, texto):
-    st.markdown(f'<h2 id="{ancla}" class="sec">{titulo}</h2><p class="sec-lead">{texto}</p>', unsafe_allow_html=True)
+def seccion(titulo, texto):
+    # Streamlit asigna a cada título un id con el slug de su texto (p. ej. "mapa-de-segmentos"); la navegación lo usa.
+    st.markdown(f'<h2 class="sec">{titulo}</h2><p class="sec-lead">{texto}</p>', unsafe_allow_html=True)
 
 
 def estilo_fig(fig, height):
@@ -294,10 +297,9 @@ with st.sidebar:
         html(f'<p class="dir-sub" style="margin-top:10px">Los perfiles de negocio se definieron con K = {K_MODELO}.</p>')
     st.markdown("---")
     html("""<nav class="dir-nav">
-         <a href="#mapa">Mapa de segmentos</a><a href="#clasificar">Clasificar un cliente</a>
-         <a href="#elegir-k">Cómo se eligió K</a><a href="#estrategias">Estrategias</a>
-         <a href="#exploracion">Exploración de los datos</a></nav>""")
-    st.markdown("---")
+         <a href="#mapa-de-segmentos">Mapa de segmentos</a><a href="#clasificar-un-cliente-nuevo">Clasificar un cliente</a>
+         <a href="#como-se-eligio-k">Cómo se eligió K</a><a href="#estrategias-por-segmento">Estrategias</a>
+         <a href="#exploracion-de-los-datos">Exploración de los datos</a></nav>""")
     html("""<p class="dir-sub">Variables del modelo: ingreso anual (k$) y puntaje de gasto (1–100),
          estandarizadas con StandardScaler. Edad y género solo describen los segmentos.</p>""")
 
@@ -353,7 +355,7 @@ def figura_segmentos(nuevo=None):
     return estilo_fig(fig, 480)
 
 
-seccion("mapa", "Mapa de segmentos",
+seccion("Mapa de segmentos",
         "Cada punto es un cliente y cada cuadro con letra es el centro de su segmento. Las líneas punteadas marcan "
         "el ingreso y el gasto promedio. Pasa el cursor sobre un punto para ver el detalle.")
 c1, c2 = st.columns([1.5, 1], gap="medium")
@@ -373,7 +375,7 @@ with c2:
     </div>""")
 
 # ---------------------------------------------------------------- Clasificar
-seccion("clasificar", "Clasificar un cliente nuevo",
+seccion("Clasificar un cliente nuevo",
         "El modelo asigna al cliente el segmento cuyo centro está más cerca, usando ingreso y gasto. "
         "La edad y el género se registran como contexto.")
 c1, c2 = st.columns([1, 1.35], gap="medium")
@@ -384,6 +386,9 @@ with c1:
         edad = f2.number_input("Edad", min_value=18, max_value=100, value=38)
         gasto = st.slider("Puntaje de gasto (1–100)", 1, 100, 15)
         genero = st.radio("Género", ["Femenino", "Masculino"], horizontal=True)
+        html(f"""<p class="s-note" style="margin:0 0 4px">Ingreso de 0 a 300 k$ y edad de 18 a 100 años. Si un campo
+             queda en rojo, corrígelo antes de clasificar. Los clientes del dataset tienen ingresos de
+             {df[FEATURES[0]].min()} a {df[FEATURES[0]].max()} k$.</p>""")
         st.form_submit_button("Clasificar cliente", width="stretch")
 
 x_new = scaler.transform(np.array([[ingreso, gasto]]))
@@ -430,7 +435,7 @@ zona_grafico.plotly_chart(figura_segmentos((ingreso, gasto)), width="stretch", c
 # ---------------------------------------------------------------- Elegir K
 red_45 = (1 - inercias[4] / inercias[3]) * 100
 red_56 = (1 - inercias[5] / inercias[4]) * 100
-seccion("elegir-k", "Cómo se eligió K",
+seccion("Cómo se eligió K",
         f"La inercia siempre baja al agregar segmentos, así que se busca el codo: de K = 4 a 5 cae&nbsp;{red_45:.0f}&nbsp;%, "
         f"y de 5 a 6 solo {red_56:.0f}&nbsp;%. La silueta, que mide qué tan separados están los grupos, alcanza su "
         f"máximo ({np.nanmax(siluetas):.3f}) en K = {k_best}. Los dos métodos coinciden.")
@@ -461,7 +466,7 @@ with c2:
 
 # ---------------------------------------------------------------- Estrategias
 if perfiles_ok:
-    seccion("estrategias", "Estrategias por segmento",
+    seccion("Estrategias por segmento",
             "La mayor oportunidad está en los clientes de ingreso alto y gasto bajo: tienen capacidad de compra "
             "que hoy no gastan en el centro comercial.")
     filas = ""
@@ -475,12 +480,12 @@ if perfiles_ok:
                   f'<p class="st-txt">{d["detalle"]}</p></div></div>')
     html(f'<div class="panel">{filas}</div>')
 else:
-    seccion("estrategias", "Estrategias por segmento",
+    seccion("Estrategias por segmento",
             f"Las estrategias se definieron para los cinco segmentos de K = {K_MODELO}. "
             f"Vuelve a K = {K_MODELO} en el directorio para verlas.")
 
 # ---------------------------------------------------------------- Exploración (Parte 1)
-seccion("exploracion", "Exploración de los datos",
+seccion("Exploración de los datos",
         "200 clientes, sin valores nulos ni filas duplicadas. Solo el ingreso tiene dos valores atípicos "
         "(137 k$), que se conservan porque son plausibles. Ingreso y gasto no están correlacionados.")
 num_cols = ["Age", "Annual Income (k$)", "Spending Score (1-100)"]
@@ -508,9 +513,12 @@ with c2:
     st.plotly_chart(estilo_fig(fig, 250), width="stretch", config=GRAF)
 
 with st.expander("Ver los 200 clientes con su segmento"):
-    tabla = df.rename(columns={"Gender": "Género", "Age": "Edad"})
+    tabla = df.rename(columns={"CustomerID": "ID cliente", "Gender": "Género", "Age": "Edad",
+                               FEATURES[0]: "Ingreso anual (k$)", FEATURES[1]: "Puntaje de gasto (1-100)"})
+    tabla["Género"] = tabla["Género"].map({"Female": "Mujer", "Male": "Hombre"})
+    tabla = tabla[["ID cliente", "Género", "Edad", "Ingreso anual (k$)", "Puntaje de gasto (1-100)", "Segmento", "Perfil"]]
     st.dataframe(tabla, hide_index=True, height=380, width="stretch")
-    st.download_button("Descargar CSV", tabla.to_csv(index=False).encode("utf-8"), "clientes_segmentados.csv",
+    st.download_button("Descargar CSV", tabla.to_csv(index=False).encode("utf-8-sig"), "clientes_segmentados.csv",
                        "text/csv")
 
 html(f"""<div class="foot">Modelo K-Means (k-means++, n_init = 10, random_state = {RANDOM_STATE}) sobre ingreso y gasto
