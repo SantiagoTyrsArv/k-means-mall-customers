@@ -8441,7 +8441,7 @@ Spending Score (1-100)    límites IQR [-22.6, 130.4] -&gt; atípicos: 0 []
 <li>Su diagrama de dispersión muestra a simple vista <strong>cinco agrupaciones naturales</strong> (las cuatro esquinas y un grupo central), lo que favorece a K-Means.</li>
 <li>Su correlación es prácticamente nula (r ≈ 0.01), por lo que aportan información complementaria, no redundante.</li>
 </ul>
-<p><code>CustomerID</code> se descarta por ser un identificador, y <code>Gender</code> por ser categórica (la distancia euclidiana no tiene sentido sobre ella y no muestra diferencias marcadas en los gráficos). <code>Age</code> se reserva para <strong>describir</strong> los perfiles; al incluirla como tercera dimensión el coeficiente de silueta baja (≈0.42 frente a ≈0.55, ver Parte 4), es decir, los grupos se separan peor.</p>
+<p><code>CustomerID</code> se descarta por ser un identificador, y <code>Gender</code> por ser categórica (la distancia euclidiana no tiene sentido sobre ella y no muestra diferencias marcadas en los gráficos). <code>Age</code> se reserva para <strong>describir</strong> los perfiles; al incluirla como tercera dimensión el coeficiente de silueta baja: con K = 5 es ≈ 0.42 frente a ≈ 0.55, y aun en su mejor valor (K = 6) solo llega a ≈ 0.43 (ver Parte 4); es decir, los grupos se separan peor.</p>
 <p><strong>¿Se identifican valores atípicos?</strong></p>
 <p>Prácticamente no. Con la regla IQR (1.5 × rango intercuartílico):</p>
 <ul>
@@ -9115,10 +9115,10 @@ Spending Score (1-100)    límites IQR [-22.6, 130.4] -&gt; atípicos: 0 []
 <p><strong>¿Coincide el valor óptimo de K con el método del codo? Justifique.</strong></p>
 <p><strong>Sí, ambos métodos coinciden en K = 5.</strong></p>
 <ul>
-<li>En el método del codo, la curva cambia de pendiente claramente en K = 5 (la inercia cae 40 % de K = 4 a K = 5 y solo 16 % de K = 5 a K = 6).</li>
+<li>En el método del codo, K = 5 es la última caída grande de la inercia: hasta K = 5 cada cluster adicional la reduce entre 31 % y 42 % (de K = 4 a K = 5 cae 40 %), y a partir de ahí las reducciones son del 19 % o menos (16 %, 19 %, 17 %, 13 % y 7 %). Por eso el cambio de pendiente está en K = 5, aunque la caída de K = 2 a K = 3 (42 %) sea algo mayor.</li>
 <li>El coeficiente de silueta alcanza su <strong>máximo en K = 5 (≈ 0.555)</strong>; con K = 4 es 0.494 y con K = 6 baja a 0.540.</li>
 </ul>
-<p>Un valor de 0.555 indica una estructura <strong>razonablemente fuerte</strong> (en la práctica, &gt; 0.5 se considera una buena separación). El diagrama de silueta muestra que los cinco clusters superan el promedio o se acercan a él, sin clusters “vacíos” ni con gran cantidad de valores negativos. La coincidencia también concuerda con la inspección visual del diagrama de dispersión, donde se observan cinco grupos. Por último, la comparación con tres variables confirma la decisión de la Parte 1: agregar la edad reduce la silueta máxima a ≈ 0.43, así que se mantiene la segmentación con ingreso y gasto.</p>
+<p>Un valor de 0.555 indica una estructura <strong>razonablemente fuerte</strong> (en la práctica, &gt; 0.5 se considera una buena separación). El diagrama de silueta muestra que los cinco clusters tienen una silueta media mayor que 0.5 (entre 0.51 y 0.60): dos quedan por encima del promedio global y tres algo por debajo. Solo 2 de las 200 observaciones tienen silueta negativa. La coincidencia también concuerda con la inspección visual del diagrama de dispersión, donde se observan cinco grupos. Por último, la comparación con tres variables confirma la decisión de la Parte 1: agregar la edad reduce la silueta máxima a ≈ 0.43, así que se mantiene la segmentación con ingreso y gasto.</p>
 </div>
 </div>
 </div>
