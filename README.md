@@ -1,5 +1,7 @@
 # Segmentación de clientes con K-Means – Mall Customers
 
+**App desplegada:** https://k-means-mall-customersgit-crgyvmibegdign4qcfoq7e.streamlit.app/
+
 Taller final de Minería de Datos. Segmentación de los 200 clientes del
 [Mall Customers Dataset](https://www.kaggle.com/datasets/vjchoudhary7/customer-segmentation-tutorial-in-python)
 con K-Means, evaluada con el método del codo y el coeficiente de silueta (K óptimo = 5, silueta ≈ 0.555).
